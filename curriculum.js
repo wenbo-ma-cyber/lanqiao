@@ -15,13 +15,14 @@
     P1886:'【模板】单调队列 / 滑动窗口', P1433:'吃奶酪', P1352:'没有上司的舞会', P3372:'【模板】线段树 1'
   };
   const sources = [{title:'Python 官方中文教程',url:'https://docs.python.org/zh-cn/3/tutorial/'},{title:'Hello 算法 · 按本周主题查阅',url:'https://www.hello-algo.com/'},{title:'OI Wiki · 按知识点查阅',url:'https://oi-wiki.org/'}];
-  let serial=0;
+  // 稳定 ID 用于保存历史学习记录；调整周序和新增课程不改变旧 ID。
+  const topicIds = {"输入输出与整数运算": "k01", "条件判断与循环": "k02", "列表与基础排序": "k03", "字符串与匹配边界": "k04", "字典计数与集合去重": "k05", "函数与二维列表": "k06", "模拟过程与调试": "k07", "枚举范围与复杂度": "k08", "多关键字排序": "k09", "一维前缀和": "k10", "差分与区间增加": "k11", "相向指针与滑动窗口": "k12", "二分边界查找": "k13", "二分答案与可行性判断": "k14", "贪心与交换论证": "k15", "深度优先搜索与剪枝": "k16", "BFS与无权最短路": "k17", "连通块与边界搜索": "k18", "并查集与路径压缩": "k19", "堆与Dijkstra": "k20", "Floyd与图算法选择": "k21", "动态规划的四个问题": "k22", "0/1背包": "k23", "完全背包": "k24", "子序列DP": "k25", "网格DP与有向依赖": "k26", "区间拆分与合并代价": "k27", "GCD与质因数分解": "k28", "素数筛与模运算": "k29", "省卷诊断与计数查缺 · 复盘": "k30", "树状数组与离散化": "k31", "单调栈": "k32", "单调队列": "k33", "位运算与集合状态": "k34", "综合方法与对拍": "k35", "省赛整卷一 · 复盘": "k36", "省赛整卷二 · 复盘": "k37", "省赛整卷三 · 复盘": "k38", "省赛整卷四 · 复盘": "k39", "树形DP": "k40", "线段树的区间合并": "k41", "国赛整卷一 · 复盘": "k42", "国赛整卷二 · 复盘": "k43", "国赛整卷三 · 复盘": "k44", "国赛整卷四 · 复盘": "k45", "国赛整卷五 · 复盘": "k46", "国赛整卷六 · 复盘": "k47", "组合计数与基础容斥": "k48", "二维前缀和与差分": "k49", "图表示、拓扑排序与DAG路径": "k50", "最小生成树与Kruskal": "k51", "模逆元与组合数": "k52", "背包变式与状态可达性": "k53"};
   const T=(title,pre,goal,concepts,example,pitfalls,criteria,problems=[],demo=null)=>({
-    id:'k'+String(++serial).padStart(2,'0'),title,prerequisites:pre,goal,
+    id:topicIds[title] || (()=>{throw new Error('Missing stable topic ID: '+title);})(),title,prerequisites:pre,goal,
     concepts:concepts.map(([title,text])=>({title,text})),
     example:{title:example[0],text:example[1],code:example[2]||''},pitfalls,criteria,
     problems:problems.map(([id,level,focus])=>({id,title:catalog[id],url:'https://www.luogu.com.cn/problem/'+id,level,focus})),
-    sources:serial<=7?sources.slice(0,2):sources.slice(1),demo
+    sources:Number(topicIds[title].slice(1))<=7?sources.slice(0,2):sources.slice(1),demo
   });
   const weeks=[];
   const W=(week,phase,title,summary,topics,kind='study')=>weeks.push({id:'week-'+String(week).padStart(2,'0'),week,phase,title,summary,kind,topics});
@@ -234,6 +235,671 @@
   mock(34,7,'国赛整卷四','启用保留国卷第1套，测量较难题的突破质量。','区分完整解法、经测试的部分解法和只有想法。只有评分允许且覆盖条件明确时，部分解法才可作为比赛策略。','暴力仅能处理n≤20，就记录这个边界和实际验证；不能把小样例通过写成已经完成整题。');
   mock(35,7,'国赛整卷五','启用保留国卷第2套，验证最主要短板已得到改善。','拿过去两个主要错误类型对照本次过程。保留时长给复盘，不为提高通过题数而大量看答案。','如果二分单调性已经能独立证明，但区间DP仍不会定义状态，最后阶段应优先稳住已有核心能力，并明确这一缺口。');
   mock(36,7,'国赛整卷六','启用保留国卷第3套，整理能力证据并完成赛前准备。','比较最近三套陌生卷的稳定性，不新增大块知识。核对当届Python版本、允许库、提交方法、证件与交通，正式日期若变化则移动冲刺窗口。','最后一次复盘只留一页：最常犯的两种错误、关键边界检查、卡题切换规则。它帮助执行，不替代临场独立推理。');
+
+  const addedTopics = [
+  {
+    "week": 6,
+    "topic": {
+      "id": "k48",
+      "title": "组合计数与基础容斥",
+      "prerequisites": [
+        "枚举范围与复杂度",
+        "字典计数与集合去重"
+      ],
+      "goal": "分清按位置选择与按值去重，用互斥分类、分步选择和容斥计数。",
+      "concepts": [
+        {
+          "title": "先确定计数对象",
+          "text": "从 n 个不同位置选 2 个，顺序不区分：先选有 n(n-1) 种有序结果，每一对恰好被数两次，因此除以 2。若同一数值出现多次，按位置选择仍是不同方案。"
+        },
+        {
+          "title": "分类必须互斥",
+          "text": "计算 1..n 中能被 a 或 b 整除的整数。分别计 n//a、n//b 会把公倍数算两次，减去 n//lcm(a,b)。三集合需要继续加回三重交集。"
+        },
+        {
+          "title": "从暴力检验公式",
+          "text": "先遍历 x=1..n 检查 x%a==0 or x%b==0，再与公式比较。互素不是必要条件，最小公倍数应使用 a//gcd(a,b)*b。"
+        }
+      ],
+      "example": {
+        "title": "从输入到输出的完整小程序",
+        "text": "输入 n a b（均为正整数），输出 1..n 内至少能被其中一个除尽的整数个数。输入 12 2 3，输出 8。",
+        "code": "from math import gcd\nn, a, b = map(int, input().split())\nlcm = a // gcd(a, b) * b\nprint(n // a + n // b - n // lcm)"
+      },
+      "pitfalls": [
+        "相同条件不是两种互斥类别。",
+        "除数超过上界时可能没有答案。"
+      ],
+      "criteria": [
+        "解释为什么选择两个不同位置要除以 2。",
+        "写出两个条件相同和互不重叠时的答案。"
+      ],
+      "problems": [],
+      "sources": [
+        {
+          "title": "Python 官方标准库：数学函数",
+          "url": "https://docs.python.org/zh-cn/3/library/math.html"
+        }
+      ],
+      "demo": null,
+      "lesson": {
+        "intuition": "分清按位置选择与按值去重，用互斥分类、分步选择和容斥计数。",
+        "derivation": [
+          "从 n 个不同位置选 2 个，顺序不区分：先选有 n(n-1) 种有序结果，每一对恰好被数两次，因此除以 2。若同一数值出现多次，按位置选择仍是不同方案。",
+          "计算 1..n 中能被 a 或 b 整除的整数。分别计 n//a、n//b 会把公倍数算两次，减去 n//lcm(a,b)。三集合需要继续加回三重交集。",
+          "先遍历 x=1..n 检查 x%a==0 or x%b==0，再与公式比较。互素不是必要条件，最小公倍数应使用 a//gcd(a,b)*b。"
+        ],
+        "invariant": "每个整数的贡献只可能为 0、1+0、0+1 或 1+1-1，恰好与属于并集的指示值一致。",
+        "code": "from math import gcd\nn, a, b = map(int, input().split())\nlcm = a // gcd(a, b) * b\nprint(n // a + n // b - n // lcm)",
+        "complexity": "O(log min(a,b)) 时间、O(1) 个额外整数；大整数运算成本随位数增长。",
+        "cases": [
+          {
+            "input": "12 2 3",
+            "expected": "8",
+            "why": "公倍数 6、12 只计一次。"
+          },
+          {
+            "input": "10 2 2",
+            "expected": "5",
+            "why": "相同条件不是两种互斥类别。"
+          },
+          {
+            "input": "5 8 9",
+            "expected": "0",
+            "why": "除数超过上界时可能没有答案。"
+          }
+        ],
+        "checks": [
+          {
+            "question": "解释为什么选择两个不同位置要除以 2。",
+            "answer": "每个无序对对应且仅对应两个排列，不能对不等重计数随意除。"
+          },
+          {
+            "question": "写出两个条件相同和互不重叠时的答案。",
+            "answer": "相同只计一次；无交集时可以直接相加。"
+          }
+        ],
+        "python": "使用 // 保持整数精确；Python 整数不会定长溢出，但不要用 / 再 int 恢复精度。"
+      },
+      "practicePlan": [
+        {
+          "kind": "理解",
+          "title": "位置与数值",
+          "prompt": "列表 [2,2,5] 选两个位置有几种？选两个不同数值又有几种？逐项列出。",
+          "verification": "位置对 3 种，不同数值集合只有 {2,5} 一种。"
+        },
+        {
+          "kind": "实现",
+          "title": "至少满足一项",
+          "prompt": "独立实现本页 n a b 问题，限制 1≤n≤10^18，1≤a,b≤10^9。",
+          "verification": "小规模用逐项判断对拍，不扫描 10^18 个整数。"
+        },
+        {
+          "kind": "边界",
+          "title": "三个条件",
+          "prompt": "把规则改成能被 2、3、5 至少一个整除。写出所有交集，计算 n=30 的答案。",
+          "verification": "答案 22；三重交集需要加回。"
+        },
+        {
+          "kind": "迁移",
+          "title": "两人技能队",
+          "prompt": "n 人分别标记是否会 Python、是否会 SQL，选两人使团队拥有两种技能，允许一个人兼会。先按四种技能状态分类，再用 n≤8 的枚举检查公式。",
+          "verification": "不把两人组的两个排列算成两组，覆盖兼会与都不会。"
+        }
+      ]
+    }
+  },
+  {
+    "week": 7,
+    "topic": {
+      "id": "k49",
+      "title": "二维前缀和与差分",
+      "prerequisites": [
+        "函数与二维列表",
+        "一维前缀和",
+        "差分与区间增加"
+      ],
+      "goal": "把一维区间推广到矩形：理解二维容斥与四个差分角点。",
+      "concepts": [
+        {
+          "title": "二维前缀的定义",
+          "text": "s[i][j] 是前 i 行前 j 列之和。新增格子 a[i-1][j-1] 时，上方和左方前缀有重复，递推 s[i][j]=a+s[i-1][j]+s[i][j-1]-s[i-1][j-1]。"
+        },
+        {
+          "title": "矩形查询",
+          "text": "闭区间 (x1,y1)..(x2,y2) 的和为 s[x2][y2]-s[x1-1][y2]-s[x2][y1-1]+s[x1-1][y1-1]。保留第 0 行、第 0 列为零。"
+        },
+        {
+          "title": "四角差分",
+          "text": "矩形增加 v：d[x1][y1]+=v，d[x2+1][y1]-=v，d[x1][y2+1]-=v，d[x2+1][y2+1]+=v。按二维前缀还原；最后一个正号恢复被减两次的部分。"
+        }
+      ],
+      "example": {
+        "title": "从输入到输出的完整小程序",
+        "text": "首行 n m q，接 n 行矩阵，接 q 行合法闭区间坐标。例：2×2 矩阵 [[1,2],[3,4]] 查询第 2 列得到 6。",
+        "code": "n, m, q = map(int, input().split())\ns = [[0] * (m + 1) for _ in range(n + 1)]\nfor i in range(1, n + 1):\n    row = list(map(int, input().split()))\n    for j in range(1, m + 1):\n        s[i][j] = row[j-1] + s[i-1][j] + s[i][j-1] - s[i-1][j-1]\nfor _ in range(q):\n    x1, y1, x2, y2 = map(int, input().split())\n    print(s[x2][y2] - s[x1-1][y2] - s[x2][y1-1] + s[x1-1][y1-1])"
+      },
+      "pitfalls": [
+        "负数仍然满足加减恒等式。"
+      ],
+      "criteria": [
+        "手画四角更新并解释最后一个加号。",
+        "为什么修改后不能直接沿用旧前缀？"
+      ],
+      "problems": [],
+      "sources": [
+        {
+          "title": "OI Wiki · 数据结构与图论参考",
+          "url": "https://oi-wiki.org/"
+        }
+      ],
+      "demo": null,
+      "lesson": {
+        "intuition": "把一维区间推广到矩形：理解二维容斥与四个差分角点。",
+        "derivation": [
+          "s[i][j] 是前 i 行前 j 列之和。新增格子 a[i-1][j-1] 时，上方和左方前缀有重复，递推 s[i][j]=a+s[i-1][j]+s[i][j-1]-s[i-1][j-1]。",
+          "闭区间 (x1,y1)..(x2,y2) 的和为 s[x2][y2]-s[x1-1][y2]-s[x2][y1-1]+s[x1-1][y1-1]。保留第 0 行、第 0 列为零。",
+          "矩形增加 v：d[x1][y1]+=v，d[x2+1][y1]-=v，d[x1][y2+1]-=v，d[x2+1][y2+1]+=v。按二维前缀还原；最后一个正号恢复被减两次的部分。"
+        ],
+        "invariant": "一个查询内格子贡献 1；位于被裁去的上方或左方贡献 0；左上重叠部分被减两次，需要加回一次。",
+        "code": "n, m, q = map(int, input().split())\ns = [[0] * (m + 1) for _ in range(n + 1)]\nfor i in range(1, n + 1):\n    row = list(map(int, input().split()))\n    for j in range(1, m + 1):\n        s[i][j] = row[j-1] + s[i-1][j] + s[i][j-1] - s[i-1][j-1]\nfor _ in range(q):\n    x1, y1, x2, y2 = map(int, input().split())\n    print(s[x2][y2] - s[x1-1][y2] - s[x2][y1-1] + s[x1-1][y1-1])",
+        "complexity": "预处理 O(nm)、每次查询 O(1)，空间 O(nm)。",
+        "cases": [
+          {
+            "input": "2 2 1\n1 2\n3 4\n1 2 2 2",
+            "expected": "6",
+            "why": "用整列检查坐标与边界。"
+          },
+          {
+            "input": "1 1 1\n-7\n1 1 1 1",
+            "expected": "-7",
+            "why": "负数仍然满足加减恒等式。"
+          }
+        ],
+        "checks": [
+          {
+            "question": "手画四角更新并解释最后一个加号。",
+            "answer": "两个负区域在右下方重叠，所以还原时需要补回一次。"
+          },
+          {
+            "question": "为什么修改后不能直接沿用旧前缀？",
+            "answer": "前缀表示固定矩阵，更新后覆盖该格的前缀都失效。"
+          }
+        ],
+        "python": "每行独立创建，避免共享引用。先估算 (n+1)(m+1) 个 Python 整数的内存，不能只按 4 字节估计。"
+      },
+      "practicePlan": [
+        {
+          "kind": "理解",
+          "title": "重叠区域",
+          "prompt": "对 [[1,2],[3,4]] 手算四个前缀，写出右下角单格的四项相减。",
+          "verification": "前缀为 1、3、4、10，右下角答案 4。"
+        },
+        {
+          "kind": "实现",
+          "title": "矩形查询器",
+          "prompt": "从空白实现本页输入格式，1≤n,m≤300，1≤q≤10^4，元素绝对值≤10^6。",
+          "verification": "与逐格求和在随机小矩阵上比较。"
+        },
+        {
+          "kind": "边界",
+          "title": "矩形批量加",
+          "prompt": "零矩阵 3×3；给 (1,1)..(2,2) 加 2，再给 (2,2)..(3,3) 加 3，四角差分还原。",
+          "verification": "结果 [[2,2,0],[2,5,3],[0,3,3]]。"
+        },
+        {
+          "kind": "迁移",
+          "title": "热力区块",
+          "prompt": "网格经过一批矩形增加后，有多次矩形总热度查询。先写清两个预处理阶段为何不能颠倒。",
+          "verification": "差分还原最终值，再对最终矩阵建前缀；用逐格修改与查询对拍。"
+        }
+      ]
+    }
+  },
+  {
+    "week": 17,
+    "topic": {
+      "id": "k50",
+      "title": "图表示、拓扑排序与DAG路径",
+      "prerequisites": [
+        "网格DP与有向依赖",
+        "BFS与无权最短路"
+      ],
+      "goal": "把先后约束建成有向图，用拓扑顺序处理依赖并检测环。",
+      "concepts": [
+        {
+          "title": "建图保留方向",
+          "text": "任务 u 必须在 v 之前完成，建立 u→v；邻接表保存后继，indegree[v] 统计尚未处理的前驱。没有依赖的孤立点也必须存在于图中。"
+        },
+        {
+          "title": "Kahn 算法",
+          "text": "所有入度为 0 的点入队，弹出后删除它的出边，后继入度减为 0 才入队。处理点数小于 n 表示剩余子图有环。"
+        },
+        {
+          "title": "DAG 路径计数",
+          "text": "dp[1]=1 表示从起点不走边的一条空路径。按拓扑顺序对每条 u→v 执行 dp[v]+=dp[u]。本例禁止重边，若重边算不同通道则每条边独立贡献。"
+        }
+      ],
+      "example": {
+        "title": "从输入到输出的完整小程序",
+        "text": "首行 n m，随后 m 条无重边有向边。输出从 1 到 n 的路径数 mod 10^9+7；只要整张图有环就输出 -1。",
+        "code": "from collections import deque\nn, m = map(int, input().split())\ng = [[] for _ in range(n)]\ndeg = [0] * n\nfor _ in range(m):\n    u, v = map(int, input().split())\n    u -= 1; v -= 1\n    g[u].append(v); deg[v] += 1\nq = deque(i for i in range(n) if deg[i] == 0)\ndp = [0] * n\ndp[0] = 1\ncount = 0\nwhile q:\n    u = q.popleft(); count += 1\n    for v in g[u]:\n        dp[v] = (dp[v] + dp[u]) % 1000000007\n        deg[v] -= 1\n        if deg[v] == 0:\n            q.append(v)\nprint(dp[-1] if count == n else -1)"
+      },
+      "pitfalls": [
+        "即使目标点孤立，整图有环仍按题意返回 -1。",
+        "不可达不是 1 条路径。"
+      ],
+      "criteria": [
+        "为什么不能按顶点编号直接转移？",
+        "有环时为什么拒绝这套递推？"
+      ],
+      "problems": [],
+      "sources": [
+        {
+          "title": "OI Wiki · 数据结构与图论参考",
+          "url": "https://oi-wiki.org/"
+        }
+      ],
+      "demo": null,
+      "lesson": {
+        "intuition": "把先后约束建成有向图，用拓扑顺序处理依赖并检测环。",
+        "derivation": [
+          "任务 u 必须在 v 之前完成，建立 u→v；邻接表保存后继，indegree[v] 统计尚未处理的前驱。没有依赖的孤立点也必须存在于图中。",
+          "所有入度为 0 的点入队，弹出后删除它的出边，后继入度减为 0 才入队。处理点数小于 n 表示剩余子图有环。",
+          "dp[1]=1 表示从起点不走边的一条空路径。按拓扑顺序对每条 u→v 执行 dp[v]+=dp[u]。本例禁止重边，若重边算不同通道则每条边独立贡献。"
+        ],
+        "invariant": "出队时所有前驱均已处理，因此 dp[u] 已累计所有到 u 的路径；最后一条边不同的路径互不重复。",
+        "code": "from collections import deque\nn, m = map(int, input().split())\ng = [[] for _ in range(n)]\ndeg = [0] * n\nfor _ in range(m):\n    u, v = map(int, input().split())\n    u -= 1; v -= 1\n    g[u].append(v); deg[v] += 1\nq = deque(i for i in range(n) if deg[i] == 0)\ndp = [0] * n\ndp[0] = 1\ncount = 0\nwhile q:\n    u = q.popleft(); count += 1\n    for v in g[u]:\n        dp[v] = (dp[v] + dp[u]) % 1000000007\n        deg[v] -= 1\n        if deg[v] == 0:\n            q.append(v)\nprint(dp[-1] if count == n else -1)",
+        "complexity": "O(n+m) 时间、O(n+m) 空间。",
+        "cases": [
+          {
+            "input": "4 4\n1 2\n1 3\n2 4\n3 4",
+            "expected": "2",
+            "why": "两条路径最后一个前驱不同。"
+          },
+          {
+            "input": "3 2\n1 2\n2 1",
+            "expected": "-1",
+            "why": "即使目标点孤立，整图有环仍按题意返回 -1。"
+          },
+          {
+            "input": "3 1\n1 2",
+            "expected": "0",
+            "why": "不可达不是 1 条路径。"
+          }
+        ],
+        "checks": [
+          {
+            "question": "为什么不能按顶点编号直接转移？",
+            "answer": "边可以从较大编号指向较小编号，编号不是依赖顺序。"
+          },
+          {
+            "question": "有环时为什么拒绝这套递推？",
+            "answer": "不能保证前驱先完成，路径计数还可能因允许重复访问而无限。"
+          }
+        ],
+        "python": "用 deque 代替 list.pop(0)。邻接表存实际边，比稀疏图的 n×n 矩阵省空间。"
+      },
+      "practicePlan": [
+        {
+          "kind": "理解",
+          "title": "依赖顺序",
+          "prompt": "对边 3→1、1→2 写出合法拓扑顺序，并指出编号顺序为什么错误。",
+          "verification": "3,1,2 是唯一顺序。"
+        },
+        {
+          "kind": "实现",
+          "title": "路径计数",
+          "prompt": "实现本页任务，1≤n≤10^5，0≤m≤2×10^5，无重边。",
+          "verification": "小 DAG 用 DFS 枚举全部路径对照。"
+        },
+        {
+          "kind": "边界",
+          "title": "孤立与循环",
+          "prompt": "测试 n=1,m=0，两个点成环，终点不可达的 DAG。",
+          "verification": "依次为 1、-1、0；含义按题面定义。"
+        },
+        {
+          "kind": "迁移",
+          "title": "施工工期",
+          "prompt": "任务有正工期，允许无限并行但必须等全部前驱完工。把计数转移改成最早完工时间。",
+          "verification": "每点为自身工期加前驱完工时间最大值，不能把平行分支时间直接相加。"
+        }
+      ]
+    }
+  },
+  {
+    "week": 13,
+    "topic": {
+      "id": "k51",
+      "title": "最小生成树与Kruskal",
+      "prerequisites": [
+        "并查集与路径压缩",
+        "贪心与交换论证"
+      ],
+      "goal": "在无向图中选最少总权的边连接所有点，区分最短路与最小生成树。",
+      "concepts": [
+        {
+          "title": "目标是连接所有点",
+          "text": "最短路优化某个起点到各点的距离，生成树优化所选边的总权。连通的 n 点树恰有 n-1 条边；负边不妨碍 Kruskal。"
+        },
+        {
+          "title": "按权从小到大",
+          "text": "排序后，仅当两个端点位于不同连通分量才选边并合并。连接同一分量的边会构成环，无需选择。"
+        },
+        {
+          "title": "交换论证",
+          "text": "当前两个分量之间选择的最小跨边是安全的：某棵最优树若没有它，加上后形成环，可删除环上另一条不更轻的跨边，总权不增加。"
+        }
+      ],
+      "example": {
+        "title": "从输入到输出的完整小程序",
+        "text": "首行 n m，后面无向边 u v w；输出连接全部点的最小总权，无法连接输出 DISCONNECTED。",
+        "code": "n, m = map(int, input().split())\nedges = []\nfor _ in range(m):\n    u, v, w = map(int, input().split())\n    edges.append((w, u-1, v-1))\np = list(range(n)); size = [1] * n\ndef find(x):\n    while p[x] != x:\n        p[x] = p[p[x]]\n        x = p[x]\n    return x\ntotal = used = 0\nfor w, u, v in sorted(edges):\n    a, b = find(u), find(v)\n    if a == b:\n        continue\n    if size[a] < size[b]:\n        a, b = b, a\n    p[b] = a; size[a] += size[b]\n    total += w; used += 1\nprint(total if used == n-1 else 'DISCONNECTED')"
+      },
+      "pitfalls": [
+        "未选满 n-1 条边不能输出局部和作为答案。",
+        "单点不需要边。"
+      ],
+      "criteria": [
+        "最短路树一定是最小生成树吗？",
+        "为什么要判断根而非 parent[u]==parent[v]？"
+      ],
+      "problems": [],
+      "sources": [
+        {
+          "title": "OI Wiki · 数据结构与图论参考",
+          "url": "https://oi-wiki.org/"
+        }
+      ],
+      "demo": null,
+      "lesson": {
+        "intuition": "在无向图中选最少总权的边连接所有点，区分最短路与最小生成树。",
+        "derivation": [
+          "最短路优化某个起点到各点的距离，生成树优化所选边的总权。连通的 n 点树恰有 n-1 条边；负边不妨碍 Kruskal。",
+          "排序后，仅当两个端点位于不同连通分量才选边并合并。连接同一分量的边会构成环，无需选择。",
+          "当前两个分量之间选择的最小跨边是安全的：某棵最优树若没有它，加上后形成环，可删除环上另一条不更轻的跨边，总权不增加。"
+        ],
+        "invariant": "选中的边始终无环，并可扩展为某棵最小生成树；贪心安全性来自跨越当前分量的最小边及交换论证。",
+        "code": "n, m = map(int, input().split())\nedges = []\nfor _ in range(m):\n    u, v, w = map(int, input().split())\n    edges.append((w, u-1, v-1))\np = list(range(n)); size = [1] * n\ndef find(x):\n    while p[x] != x:\n        p[x] = p[p[x]]\n        x = p[x]\n    return x\ntotal = used = 0\nfor w, u, v in sorted(edges):\n    a, b = find(u), find(v)\n    if a == b:\n        continue\n    if size[a] < size[b]:\n        a, b = b, a\n    p[b] = a; size[a] += size[b]\n    total += w; used += 1\nprint(total if used == n-1 else 'DISCONNECTED')",
+        "complexity": "排序 O(m log m)，并查集近线性，总空间 O(n+m)。",
+        "cases": [
+          {
+            "input": "3 3\n1 2 4\n2 3 2\n1 3 9",
+            "expected": "6",
+            "why": "按边权先选 2 再选 4。"
+          },
+          {
+            "input": "3 1\n1 2 4",
+            "expected": "DISCONNECTED",
+            "why": "未选满 n-1 条边不能输出局部和作为答案。"
+          },
+          {
+            "input": "1 0",
+            "expected": "0",
+            "why": "单点不需要边。"
+          }
+        ],
+        "checks": [
+          {
+            "question": "最短路树一定是最小生成树吗？",
+            "answer": "不一定。例如边 1-2 权 2、1-3 权 2、2-3 权 1，最短路树总权 4，最小生成树总权 3。"
+          },
+          {
+            "question": "为什么要判断根而非 parent[u]==parent[v]？",
+            "answer": "同一集合的节点可能有不同直接父节点，但根相同。"
+          }
+        ],
+        "python": "排序边元组 (w,u,v) 即可；用迭代 find 避免深递归。大量边的元组与整数占用需要按运行环境测量。"
+      },
+      "practicePlan": [
+        {
+          "kind": "理解",
+          "title": "画出选择过程",
+          "prompt": "对三角形边权 2、2、1 手动排序、选择，记录每步分量。",
+          "verification": "最终选 1 和任意一个 2，总权 3。"
+        },
+        {
+          "kind": "实现",
+          "title": "连接全部站点",
+          "prompt": "独立实现本页格式，n≤10^5、m≤2×10^5，允许重边和负权。",
+          "verification": "n≤6 时枚举 n-1 条边并检查连通，以最小总权对拍。"
+        },
+        {
+          "kind": "边界",
+          "title": "不连通与自环",
+          "prompt": "测试自环、相同权、孤立点；说明自环即使负权是否能入树。",
+          "verification": "树不含自环；重边允许但成环的边不选。"
+        },
+        {
+          "kind": "迁移",
+          "title": "已有道路",
+          "prompt": "若若干道路已免费建好，输入已有连接后再选择收费边，如何修改？",
+          "verification": "先并查集合并已有连接，然后按权选边；最终通过分量数为 1 验证连通。"
+        }
+      ]
+    }
+  },
+  {
+    "week": 19,
+    "topic": {
+      "id": "k52",
+      "title": "模逆元与组合数",
+      "prerequisites": [
+        "素数筛与模运算",
+        "组合计数与基础容斥"
+      ],
+      "goal": "明确模除法前提，使用素数模数下的阶乘与逆阶乘计算组合数。",
+      "concepts": [
+        {
+          "title": "逆元是乘法的撤销",
+          "text": "a 的模 m 逆元 x 满足 ax≡1 (mod m)，存在当且仅当 gcd(a,m)=1。本课固定素数 p=10^9+7，且 0≤n<p，所以 n! 可逆。"
+        },
+        {
+          "title": "费马小定理的范围",
+          "text": "a 不被素数 p 整除时 a^(p-1)≡1，因此逆元为 pow(a,p-2,p)。合数模数或 a≡0 时不能套这个公式。"
+        },
+        {
+          "title": "批量查询",
+          "text": "C(n,k)=fact[n]*invfact[k]*invfact[n-k] mod p。先预处理到所有查询最大 n，只对 fact[N] 求一次逆元，再用 invfact[i-1]=invfact[i]*i 倒推。"
+        }
+      ],
+      "example": {
+        "title": "从输入到输出的完整小程序",
+        "text": "输入查询数 q，随后 q 行 n k；约定 0≤n≤10^6，k 可越界，越界组合数为 0。例：5 2 得到 10。",
+        "code": "p = 1000000007\nq = int(input())\nqueries = [tuple(map(int, input().split())) for _ in range(q)]\nN = max((n for n, k in queries), default=0)\nfact = [1] * (N + 1)\nfor i in range(1, N + 1):\n    fact[i] = fact[i-1] * i % p\ninv = [1] * (N + 1)\ninv[N] = pow(fact[N], p-2, p)\nfor i in range(N, 0, -1):\n    inv[i-1] = inv[i] * i % p\nfor n, k in queries:\n    print(0 if k < 0 or k > n else fact[n] * inv[k] % p * inv[n-k] % p)"
+      },
+      "pitfalls": [
+        "普通浮点除法不能替代逆元。"
+      ],
+      "criteria": [
+        "模 8 下 2 是否存在逆元？",
+        "为什么必须限制 n<p？"
+      ],
+      "problems": [],
+      "sources": [
+        {
+          "title": "Python 官方标准库：数学函数",
+          "url": "https://docs.python.org/zh-cn/3/library/math.html"
+        }
+      ],
+      "demo": null,
+      "lesson": {
+        "intuition": "明确模除法前提，使用素数模数下的阶乘与逆阶乘计算组合数。",
+        "derivation": [
+          "a 的模 m 逆元 x 满足 ax≡1 (mod m)，存在当且仅当 gcd(a,m)=1。本课固定素数 p=10^9+7，且 0≤n<p，所以 n! 可逆。",
+          "a 不被素数 p 整除时 a^(p-1)≡1，因此逆元为 pow(a,p-2,p)。合数模数或 a≡0 时不能套这个公式。",
+          "C(n,k)=fact[n]*invfact[k]*invfact[n-k] mod p。先预处理到所有查询最大 n，只对 fact[N] 求一次逆元，再用 invfact[i-1]=invfact[i]*i 倒推。"
+        ],
+        "invariant": "fact[i] 始终表示 i! 的模值；逆阶乘递推来自 1/(i-1)!=i/i!，所有分母在本课限制下都可逆。",
+        "code": "p = 1000000007\nq = int(input())\nqueries = [tuple(map(int, input().split())) for _ in range(q)]\nN = max((n for n, k in queries), default=0)\nfact = [1] * (N + 1)\nfor i in range(1, N + 1):\n    fact[i] = fact[i-1] * i % p\ninv = [1] * (N + 1)\ninv[N] = pow(fact[N], p-2, p)\nfor i in range(N, 0, -1):\n    inv[i-1] = inv[i] * i % p\nfor n, k in queries:\n    print(0 if k < 0 or k > n else fact[n] * inv[k] % p * inv[n-k] % p)",
+        "complexity": "O(N+q+log p) 时间、O(N+q) 空间。",
+        "cases": [
+          {
+            "input": "3\n5 2\n0 0\n4 5",
+            "expected": "10\n1\n0",
+            "why": "空集合选零个有一种方案；越界有零种。"
+          },
+          {
+            "input": "1\n6 3",
+            "expected": "20",
+            "why": "普通浮点除法不能替代逆元。"
+          }
+        ],
+        "checks": [
+          {
+            "question": "模 8 下 2 是否存在逆元？",
+            "answer": "不存在，2 与 8 不互素。"
+          },
+          {
+            "question": "为什么必须限制 n<p？",
+            "answer": "n≥p 会使 n! 包含因子 p，模值为 0，不可用此逆阶乘公式。"
+          }
+        ],
+        "python": "pow(a,b,p) 使用模幂，避免先算 a**b 造成巨大整数。两份百万级 Python 整数列表需实测内存，资源不足时降低预处理范围。"
+      },
+      "practicePlan": [
+        {
+          "kind": "理解",
+          "title": "手找逆元",
+          "prompt": "分别找 3 模 7 的逆元，判断 2 模 8 是否有逆元。",
+          "verification": "5；无逆元。"
+        },
+        {
+          "kind": "实现",
+          "title": "组合数批量查询",
+          "prompt": "独立实现本页查询，先在 n≤30 时与 math.comb(n,k)%p 对照。",
+          "verification": "测试 k=0、k=n、k>n 与 n=0。"
+        },
+        {
+          "kind": "边界",
+          "title": "失效前提",
+          "prompt": "把模数改成 7 后计算 C(7,1)，说明本页阶乘公式为什么失效。",
+          "verification": "真实答案模 7 为 0，但 7! 不可逆，不能用结果碰巧正确证明公式有效。"
+        },
+        {
+          "kind": "迁移",
+          "title": "无障碍路径",
+          "prompt": "从左上到右下只走右或下，需向右 a 步、向下 b 步。回答路径数，a+b≤10^6。",
+          "verification": "对应在 a+b 个位置选 a 个向右位置，答案 C(a+b,a)。"
+        }
+      ]
+    }
+  },
+  {
+    "week": 18,
+    "topic": {
+      "id": "k53",
+      "title": "背包变式与状态可达性",
+      "prerequisites": [
+        "0/1背包",
+        "完全背包"
+      ],
+      "goal": "区分恰好与至多、最大值与方案数，并理解分组物品的数据依赖。",
+      "concepts": [
+        {
+          "title": "可达性属于状态",
+          "text": "恰好容量时只有 dp[0] 可达，其余应设 -∞ 或 None；不能将未到达状态当作价值 0。若有负价值，这个区别更明显。"
+        },
+        {
+          "title": "每组最多一个",
+          "text": "处理一组时，每个候选都读取上一组的 old 数组，写入新的 dp。若在同一组内连续读取更新后的状态，就可能选出同组多个物品。"
+        },
+        {
+          "title": "计数时确认顺序",
+          "text": "硬币面额在外、金额递增在内计算不计顺序的组合；金额在外枚举最后一个面额会计算有序序列。初值 dp[0]=1 是空方案。"
+        }
+      ],
+      "example": {
+        "title": "从输入到输出的完整小程序",
+        "text": "首行组数 G 与目标容量 C；每组一行 k w1 v1 ... wk vk，重量为正。每组最多选一个，求恰好装满的最大价值，无法装满输出 IMPOSSIBLE。",
+        "code": "G, C = map(int, input().split())\ndp = [None] * (C + 1)\ndp[0] = 0\nfor _ in range(G):\n    row = list(map(int, input().split()))\n    count = row[0]\n    old = dp\n    dp = old[:]\n    for j in range(count):\n        w, v = row[1+2*j:3+2*j]\n        for c in range(w, C+1):\n            if old[c-w] is not None:\n                value = old[c-w] + v\n                if dp[c] is None or value > dp[c]:\n                    dp[c] = value\nprint('IMPOSSIBLE' if dp[C] is None else dp[C])"
+      },
+      "pitfalls": [
+        "同组不能重复选择。",
+        "恰好装满时负价值也可能是唯一答案。"
+      ],
+      "criteria": [
+        "为什么同组物品必须读取 old？",
+        "硬币 1、2 凑 3 的组合数与排列数各是多少？"
+      ],
+      "problems": [],
+      "sources": [
+        {
+          "title": "OI Wiki · 数据结构与图论参考",
+          "url": "https://oi-wiki.org/"
+        }
+      ],
+      "demo": null,
+      "lesson": {
+        "intuition": "区分恰好与至多、最大值与方案数，并理解分组物品的数据依赖。",
+        "derivation": [
+          "恰好容量时只有 dp[0] 可达，其余应设 -∞ 或 None；不能将未到达状态当作价值 0。若有负价值，这个区别更明显。",
+          "处理一组时，每个候选都读取上一组的 old 数组，写入新的 dp。若在同一组内连续读取更新后的状态，就可能选出同组多个物品。",
+          "硬币面额在外、金额递增在内计算不计顺序的组合；金额在外枚举最后一个面额会计算有序序列。初值 dp[0]=1 是空方案。"
+        ],
+        "invariant": "处理第 i 组后的 dp[c] 是前 i 组恰好重量 c 的最优值；old 只含前 i-1 组，所以一次转移不可能重复选当前组。",
+        "code": "G, C = map(int, input().split())\ndp = [None] * (C + 1)\ndp[0] = 0\nfor _ in range(G):\n    row = list(map(int, input().split()))\n    count = row[0]\n    old = dp\n    dp = old[:]\n    for j in range(count):\n        w, v = row[1+2*j:3+2*j]\n        for c in range(w, C+1):\n            if old[c-w] is not None:\n                value = old[c-w] + v\n                if dp[c] is None or value > dp[c]:\n                    dp[c] = value\nprint('IMPOSSIBLE' if dp[C] is None else dp[C])",
+        "complexity": "设总候选物品数 S，时间 O(SC+GC)，空间 O(C)，逐组读取。",
+        "cases": [
+          {
+            "input": "2 4\n2 2 3 4 5\n1 2 4",
+            "expected": "7",
+            "why": "从两组各选重 2 的物品得到 7。"
+          },
+          {
+            "input": "1 4\n1 2 3",
+            "expected": "IMPOSSIBLE",
+            "why": "同组不能重复选择。"
+          },
+          {
+            "input": "1 2\n1 2 -3",
+            "expected": "-3",
+            "why": "恰好装满时负价值也可能是唯一答案。"
+          }
+        ],
+        "checks": [
+          {
+            "question": "为什么同组物品必须读取 old？",
+            "answer": "确保前驱未使用当前组，避免同组选两件。"
+          },
+          {
+            "question": "硬币 1、2 凑 3 的组合数与排列数各是多少？",
+            "answer": "组合 2 种：1+1+1、1+2；排列 3 种，另含 2+1。"
+          }
+        ],
+        "python": "用 None 明确区分不可达，避免猜测负无穷常数。列表复制每组一次，分析时也计入 O(GC)。"
+      },
+      "practicePlan": [
+        {
+          "kind": "理解",
+          "title": "恰好与至多",
+          "prompt": "只有重 2 值 -3 的一件物品，容量 2，分别求至多和恰好最优值。",
+          "verification": "至多可不选得 0；恰好必须选得 -3。"
+        },
+        {
+          "kind": "实现",
+          "title": "分组精确装包",
+          "prompt": "从空白完成本页任务，G≤100，C≤1000，每组≤20 个候选。",
+          "verification": "小数据枚举每组不选或选一个，比较最优值。"
+        },
+        {
+          "kind": "边界",
+          "title": "循环顺序反例",
+          "prompt": "同组两个物品均重 1 值 5，容量 2；构造读取更新后 dp 导致错误的过程。",
+          "verification": "正确结果不可达，错误实现可能得到 10。"
+        },
+        {
+          "kind": "迁移",
+          "title": "限定硬币种类",
+          "prompt": "面额 1、2、5 各可无限使用，凑 10，顺序不计。写出状态和循环。",
+          "verification": "答案 10；再用三层枚举每种硬币数量核对。"
+        }
+      ]
+    }
+  }
+];
+  addedTopics.forEach(({week,topic})=>weeks.find(w=>w.week===week).topics.push(topic));
   const all = weeks.flatMap(w=>w.topics);
   const ids = Object.fromEntries(all.map(t=>[t.title,t.id]));
   all.forEach(t=>{t.prerequisites=t.prerequisites.map(title=>{if(!ids[title])throw new Error('Missing prerequisite '+title);return ids[title];});});
@@ -241,6 +907,118 @@
     {title:'洛谷题库 · 选择与记录练习来源',url:'https://www.luogu.com.cn/problem/list'},
     {title:'蓝桥云课 · 核对年份、语言与组别',url:'https://www.lanqiao.cn/problems/'}
   ]));
+
+  // 进阶专题按诊断选择；36 周是可伸缩的预算，不是获奖承诺。
+  weeks.find(w=>w.week===6).summary += ' 加入互斥分类、分步选择与容斥，数学训练不再等到模拟后。';
+  weeks.find(w=>w.week===7).summary += ' 先过一维验收，再做二维拓展；未达标可延长一周。';
+  weeks.find(w=>w.week===13).summary += ' 并查集通过小测后，用最小生成树练习贪心与连通性的组合。';
+  weeks.find(w=>w.week===17).summary += ' 用拓扑排序把网格依赖推广到一般有向无环图。';
+  weeks.find(w=>w.week===18).summary += ' 分组与恰好装满作为背包复测，基础未稳先补背包。';
+  weeks.find(w=>w.week===19).summary += ' 组合数仅在计数与模运算先修达标后推进。';
+  [29,30].forEach(n=>{const w=weeks.find(x=>x.week===n);w.summary='诊断选修：先修复省赛与提前国赛题组暴露的缺口，基础稳定后再学习本周专题。'; w.topics.forEach(t=>t.optional=true);});
+  const checkpoints = {
+    8:{title:'首次无标签基础诊断',minutes:90,tasks:['独立完成混合训练 m01 与 m02，先写自己的方法选择再开提示。','不看模板解释区间边界和计数对象；记录一处最小反例。'],criteria:['能选择方法并说明复杂度，而不是凭章节名称选模板。','未通过的基础任务先进入修复清单，周数可顺延。']},
+    12:{title:'搜索与基础算法混合诊断',minutes:120,tasks:['完成混合训练 m03；用 BFS 解释第一次到达的含义。','从已学题中选一题关闭代码重写，再完成一道未见过的同难度变式；旧题不计陌生证据。'],criteria:['清楚区分状态、访问标记和答案。','能用小数据验证，说明有负数或不同边权时原方法是否有效。']},
+    16:{title:'首次 DP 与省赛能力诊断',minutes:150,tasks:['完成混合训练 m04；解释背包容量方向。','从官方真题入口选择已核对 Python 大学 B 组的较早省卷，只抽取尚未见过且在已学范围的题；登记年份、题目与来源。','抽题卷标为训练卷，不再进入保留测评池。'],criteria:['先定义状态、初值和顺序，再实现。','把不会建模、实现错误和运行成本分开记录；不根据本次分数预测奖项。']},
+    20:{title:'省卷诊断与国赛题提前接触',minutes:120,tasks:['在本周省卷之外另开一次题组训练；从已登记的国赛训练卷选择两道基础或中档题，未核实来源前不启动计时。','一题独立限时，一题完成后阅读解析并写出建模链；已读题仅计训练。','用训练 m05/m06 针对计数或图建模缺口补测。'],criteria:['记录思考停在哪一步，形成下一周两项可执行修复。','保留国卷保持封存；题组训练成绩与整卷成绩分别记录。']},
+    24:{title:'国赛综合题组与性能诊断',minutes:180,tasks:['完成混合训练 m07、m08，不提前查看主题与答案。','选一题写小规模暴力并对拍，再用规定规模估算与测量成本。','在国赛训练卷中选择一题对照：障碍来自知识、组合、证明还是实现？'],criteria:['能提供正确性理由、复杂度与测试记录。','基础仍不稳定时，用第29—30周补弱，不强制新增高级算法。']}
+  };
+  Object.entries(checkpoints).forEach(([week,checkpoint])=>weeks.find(w=>w.week===Number(week)).checkpoint=checkpoint);
+  const trainingMap={k05:'m01',k10:'m01',k11:'m02',k12:'m02',k17:'m03',k18:'m03',k23:'m04',k24:'m04',k48:'m05',k19:'m06',k51:'m06',k26:'m07',k50:'m07',k49:'m08'};
+  weeks.filter(w=>w.kind==='study').forEach(w=>w.topics.forEach(t=>{
+    if(t.practicePlan)return;
+    const p=t.problems.find(p=>p.level==='入门理解') || t.problems[0];
+    t.practicePlan=[
+      {kind:'理解',title:'先手推，再解释',prompt:'关闭代码，完成「'+t.example.title+'」的状态表或变量变化表。逐步说明：'+t.concepts[0].text,verification:'手算结果与运行输出一致，并能解释中间状态；答案相同但说不清过程不算完成。'},
+      {kind:'实现',title:p ? '独立实现 · '+p.id : '从空白实现本页任务',prompt:p ? p.focus+' 先核对完整题面、数据范围和 Python 资源限制；不要看题解。' : t.goal, ...(p?{problemId:p.id,url:p.url}:{}),verification:'记录输入来源、实际评测或自测范围、耗时与是否使用提示；样例通过不等于完整通过。'},
+      {kind:'边界',title:'用反例检查适用条件',prompt:'针对以下风险各设计一个最小输入，写出正确答案和错误实现可能输出：'+t.pitfalls.join('；'),verification:'保留至少两个可复现输入，用独立手算或小规模暴力确认答案，不能只改样例数字。'},
+      {kind:'迁移',title:trainingMap[t.id]?'无标签混合训练 '+trainingMap[t.id]:'关闭标签的变式复测',prompt:trainingMap[t.id]?'进入混合训练 '+trainingMap[t.id]+'，先提交自己的建模与复杂度说明，再展开提示及答案。':'把本页「'+t.example.title+'」例子改写为标准输入任务，扩大规模并改变一个约束（如是否重复、边界是否包含、数据是否可为负）；先判断原算法是否仍成立，再实现。另选一道未见题面且无算法标签的同难度题，登记来源后才作为陌生验证。',verification:'自编变式是迁移训练，不自动计陌生题；已看答案和重复题不计陌生验证。独立完成并解释约束变化的影响后再记录掌握。'}
+    ];
+    if(t.id==='k32') t.practicePlan[1]={kind:'实现',title:'先做小规模，再挑战 P5788',prompt:'输入 n 和 n 个整数，输出每个位置右侧第一个严格更大元素的 1-based 位置；不存在输出 0。先限制 n≤2000，与双循环暴力比较，再自行扩到 2×10^5。P5788 另作为大规模工程验证。',verification:'[2,1,3] 输出 3 3 0；[2,2] 输出 0 0。大输入记录时间和峰值内存，模板题完整评测未通过不能标记通过。'};
+  }));
+  weeks.filter(w=>w.kind==='mock').forEach(w=>w.topics.forEach(t=>{
+    if(!t.prerequisites.length)t.prerequisites=w.week<29?['k22','k29','k35']:['k35','k23','k20','k48'];
+    const reserved=[26,27,28,34,35,36].includes(w.week);
+    t.paper={mode:reserved?'reserved':'training',year:null,group:'Python 大学 B 组',stage:w.week<29?'省赛':'国赛',source:'https://www.lanqiao.cn/paper/',minutes:240,
+      selection:reserved?'从已核实的候选卷中登记一套未读题面、未看题解的保留卷；开始前只登记年份、组别、原卷链接，不提前展开题目。若题目已见，改记训练卷并更换测评卷。':'从官方入口筛选 Python、大学 B 组与相应阶段，核对原卷后登记年份和具体链接。当前尚未核实到可直接绑定的完整原卷，不预填年份或假设某套卷存在。',
+      criteria:['来源、年份、语言、组别、阶段全部登记；入口链接不能代替具体原卷来源。','阅读过任一题面或题解的卷不进入保留测评池；抽题训练与整卷结果分开。','结束计时前不查看平台评测反馈，末尾检查最终提交；默认240分钟，正式时长及环境以当届规则为准。','记录逐题开始时间、独立程度、自测范围与实际评测结果；下次用未见变式验证修复。']};
+    t.sources=[{title:'蓝桥杯官方真题卷入口 · 筛选并登记具体原卷',url:t.paper.source}];
+    t.concepts[0].text='登记并核实原卷后，默认计时240分钟。前10～15分钟读卷，末尾20分钟检查最终提交；计时结束前不看平台评测结果。正式赛时长与环境以当届规则为准。';
+  }));
+
+
+  // 官方目录元数据已核实；登录后的整套题面、权限与完整评测尚未核验。
+  const verifiedPapers = {
+    20:[2022,3930,'第十三届蓝桥杯省赛 Python 大学 B 组'],
+    25:[2023,3926,'第十四届蓝桥杯省赛 Python 大学 B 组'],
+    26:[2024,4405,'第十五届蓝桥杯省赛 Python 大学 B 组'],
+    27:[2025,5718,'第十六届蓝桥杯省赛 Python 大学 B 组'],
+    31:[2022,3934,'第十三届蓝桥杯决赛 Python 大学 B 组'],
+    32:[2023,4111,'第十四届蓝桥杯国赛 Python 大学 B 组'],
+    34:[2024,5348,'第十五届蓝桥杯国赛 Python 大学 B 组'],
+    35:[2025,7596,'第十六届蓝桥杯国赛 Python 大学 B 组']
+  };
+  weeks.filter(w=>w.kind==='mock').forEach(w=>w.topics.forEach(t=>{
+    const record=verifiedPapers[w.week];
+    t.paper.access='官方试卷，登录后开始；访问权限或费用以平台当时显示为准。';
+    if(record){
+      const [year,id,title]=record;
+      Object.assign(t.paper,{year,title,source:'https://www.lanqiao.cn/paper/'+id+'/',verification:'2026-09-26 核对官方目录 API：年份、语言、组别、阶段、试卷 ID 与240分钟元数据；未核验登录后的完整题面及评测。'});
+      t.paper.selection=t.paper.mode==='reserved'?'默认保留此卷。先确认从未读过任一题面或题解，再登记开始；若已见，将本卷转为训练并更换有来源的未见同组别原卷。':'默认使用此训练卷。可用于提前抽题或整卷练习；已抽题、已读题或已看解析后，后续整卷仅算训练，不算陌生测评。';
+      t.sources=[{title:title+' · 官方试卷（需登录）',url:t.paper.source},{title:'官方真题目录 · 更换已见试卷',url:'https://www.lanqiao.cn/paper/'}];
+    } else {
+      t.paper.title='补充卷待登记 · 不复用已见原卷作为陌生测评';
+      t.paper.selection='目前核实到2022—2025各年度的8套有效同组别原卷，已经分别安排；此槽位不虚构第9—11套。请从官方目录核实其他同组别卷并登记来源，或改为已见卷的专项补弱训练；没有未见且来源可靠的卷时，跳过陌生成绩比较。';
+      t.paper.verification='尚未绑定完整原卷；官方入口只是选卷来源，不代表已核实具体试卷。';
+      w.summary='补充诊断窗口：有已核实的未见同组别原卷才进行陌生整卷测评；否则针对最近错因补弱与变式验证。';
+    }
+  }));
+  // 已核实原卷不足时，明确安排复测，不制造新的陌生整卷。
+  const repairWeeks={
+    28:{title:'省赛复测与修复',from:27,goal:'复测已做省卷的主要失分点，再用未见变式检验修复；不重复计算陌生整卷。'},
+    33:{title:'国赛专题修复',from:32,goal:'围绕国赛训练暴露的建模与实现问题补弱；重做原题后必须另做未见变式。'},
+    36:{title:'赛前复测与执行检查',from:35,goal:'复测已有可靠解法，检查输入输出、提交与切题策略；不在最后一周强行新增大块知识。'}
+  };
+  Object.entries(repairWeeks).forEach(([number,plan])=>{
+    const w=weeks.find(x=>x.week===Number(number)),t=w.topics[0],sourceTopic=weeks.find(x=>x.week===plan.from).topics[0];
+    w.title=plan.title;w.summary=plan.goal;t.title=plan.title+' · 复盘';t.goal=plan.goal;
+    Object.assign(t.paper,{mode:'training',year:sourceTopic.paper.year,source:sourceTopic.paper.source,title:sourceTopic.paper.title+' · 已见卷复测',minutes:120,
+      selection:'本周复用第'+plan.from+'周已做原卷中的错题，先关闭代码独立重写，再做一道改变条件的未见变式。重做成绩不参与陌生卷比较；若更换新卷，必须重新核验并登记来源。',verification:sourceTopic.paper.verification});
+    t.paper.criteria=['记录复测原题与未见变式，分别注明是否独立和验证范围。','比较上次两个失分原因是否复现；未解决的继续安排近期补测。','本周为120分钟题组复测，不作为240分钟整卷；正式赛前另核对当届环境与规则。'];
+    t.concepts=[{title:'复测不等于陌生测评',text:plan.goal},{title:'执行顺序',text:'用120分钟完成错题重写与变式测试，另留时间复盘；如果选择完整新卷，则按当届时长安排并如实记录。'}];
+    t.sources=[{title:t.paper.title+'（需登录）',url:t.paper.source}];
+    t.criteria=['关闭原代码重写选定错题。','完成至少一道改变条件的变式，记录结果依据。','留下明确的下一步修复或赛前检查记录。'];
+  });
+  const concreteTransfer = {
+    k01:['整袋采购','输入需要 n 颗糖、每袋 k 颗，求最少购买袋数，n≥0、k>0。不使用浮点数。','输入 0 5 得 0；10 5 得 2；11 5 得 3。解释 (n+k-1)//k 的边界。'],
+    k02:['第一次达标','输入目标 t≥0 和一串非负每日增量，输出首次累计达到 t 的天数；t=0 输出0，全部加完仍不足输出-1。','t=5，增量 0 2 3 得3；t=6 同序列得-1。'],
+    k03:['保留原位置','输入 n 个整数，输出最小值及它最早出现的1-based位置；不得因排序丢失原位置。','[4,1,1,3] 输出 1 2；比较直接扫描与携带下标排序的成本。'],
+    k04:['最长相同字符段','输入非空字符串，输出最长连续相同字符段的长度；大小写不同。','aaBBBa 输出3，aA输出1；不是统计总频次。'],
+    k06:['邻格总和','输入 n×m 矩阵，输出每格原矩阵上下左右合法邻格的和，同时更新。','[[1,2],[3,4]] 得 [[5,5],[5,5]]；不能边覆盖边读取已更新值。'],
+    k07:['库存事件','初始库存 s≥0；依次输入补货正数或领用负数。如果领用超过库存，拒绝该事件且库存不变。输出最终库存和拒绝次数。','s=3，事件 -4,2,-5 得 0 1；拒绝事件不能让库存变负。'],
+    k08:['三件采购','有三类商品单价 a,b,c，最多各买 L 件，求总费用恰好为 B 的购买数量三元组个数。数量允许0，商品类别不同。','a=b=c=1，L=2，B=2 得6；先枚举两类，推导第三类并核对整除与范围。'],
+    k09:['排名与原序','输入 (姓名,分数,耗时)；按分数降序、耗时升序，同分同耗时保留输入顺序。','[(A,90,5),(B,90,3),(C,90,3)] 顺序 B,C,A；解释稳定排序或原序号。'],
+    k13:['区间内出现次数','有序数组含重复数；输入 x，求 x 出现次数，要求 O(log n)。','[1,2,2,2,4] 中2有3个、3有0个；用左右边界之差，不线性扫描。'],
+    k14:['连续分箱','n 个正数按原顺序分成至多 k 段，求最大段和的最小值。','[2,3,1,4],k=2 得5；证明容量更大时需要的段数不增加，再二分。'],
+    k15:['最少删除区间','给出半开区间，删除最少个使剩余互不重叠，端点相接允许。','[0,4),[1,2),[2,3) 最少删1；等于总数减去最多可保留数量。'],
+    k16:['带和约束的子集','输入不重复正整数列表与目标 S，输出和为S的下标子集数，每个位置最多一次。','[1,2,3,4],S=5 得2（1+4、2+3）；若允许负数，“当前和超过S”剪枝将失效。'],
+    k20:['经过服务点','非负权有向图，从 s 到 t 必须经过指定点 k，求最短总距离，不可达输出-1。','边1→2=2，2→3=3，1→3=1，s=1,k=2,t=3，答案5；分别求两段并检验可达性。'],
+    k21:['最低中转费用','有向图允许负边但保证无负环，多次询问两点最短路，n≤60。','边1→2=4，2→3=-2，1→3=5，查询1到3得2；这时不能沿用Dijkstra的证明。'],
+    k22:['坏台阶','每次走1或2级，部分台阶不可落脚，求走到第n级的方法数，模10^9+7，0号起点可站。','n=4，坏台阶{2}得1（0→1→3→4）；坏台阶状态应清零。'],
+    k25:['不下降的区别','输入序列，分别求最长严格递增与最长不下降子序列长度。','[2,2,1,3] 得2、3；大数据分别核对 bisect_left 与 bisect_right 的等号含义。'],
+    k27:['合并顺序','线性排列石子 [1,3,2,4]，每次只能合并相邻两堆，费用为合并重量，求最小总费用并输出一组划分。','最小费用20；将最优转移分割点保存下来，再从全区间还原。先用所有合法合并顺序枚举校验。'],
+    k28:['互质配对','给定正整数 G,L，统计有序正整数对(a,b)满足 gcd(a,b)=G、lcm(a,b)=L。','G=2,L=12 得4：(2,12),(12,2),(4,6),(6,4)；L不被G整除时为0。'],
+    k29:['多次素数计数','查询 q 个闭区间 [l,r] 内的质数个数，1≤l≤r≤10^6。','[1,10] 得4，[4,4] 得0；先筛、再对质数指示值建前缀。'],
+    k31:['左侧较小值','输入序列，依次输出每个位置左边严格小于它的元素个数，值可大且重复。','[5,1,5,3] 得0 0 1 1；离散化后查询 rank-1 再加入当前值。'],
+    k32:['右侧不小于','将“右侧第一个严格更大”改成“右侧第一个大于等于”，输出1-based位置，不存在0。','[2,2,1] 得2 0 0；弹栈等号必须随题意改变，用双循环对照。'],
+    k33:['窗口极差','输入序列与窗口长度 k，输出每个窗口最大值减最小值。','[1,4,2,3],k=3 得3 2；同时维护两端候选队列。'],
+    k34:['任务与位置','n≤12个任务，任务i放在第j位置费用cost[i][j]；每任务恰好分配一个不同位置，求最小总费用。','[[3,1],[2,5]] 得3；dp[mask] 的下一位置为已选位数，所以此题不需要last维度。'],
+    k35:['整除的时间段','输入整数序列与正整数 k，统计非空连续子段中和可被k整除的个数。','[1,2,3],k=3 得3；统计相同前缀余数，负数也可正确处理。'],
+    k40:['保护站点','树上每点有收益，选择若干不相邻点最大化收益；要求输出一种最优点集。','链1—2—3，收益[4,7,4]，选{1,3}得8；计算DP后根据父节点选择还原。'],
+    k41:['区间最小值','将本页区间和结构改成单点赋值、区间最小值查询。','[5,2,7] 查询全段得2，把第二项赋值9后得5；不相交区间返回+∞，不是0。']
+  };
+  all.forEach(t=>{if(concreteTransfer[t.id]&&t.practicePlan){const [title,prompt,verification]=concreteTransfer[t.id];t.practicePlan[3]={kind:'迁移',title,prompt,verification:verification+' 自编变式用于迁移训练；已显示答案的练习不计陌生测评证据。'};}});
+
   window.LQ_CURRICULUM = {checkedAt:'2026-09-26', phases:[
     {id:1,title:'编程入门',subtitle:'第 1—4 周 · 把想法写成程序'},
     {id:2,title:'基础算法',subtitle:'第 5—10 周 · 建立解题工具箱'},
